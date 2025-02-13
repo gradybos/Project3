@@ -54,7 +54,7 @@ void wipersInt(int systemDelay);
 void wipersLo(int systemDelay);
 void wipersHi(int systemDelay);
 void wiperSelectorUpdate();
-void intSelectorUpdate();
+int intSelectorUpdate();
 
 //=====[Implementations of public functions]===================================
 
@@ -69,6 +69,7 @@ void wipersInit() {
 }
 
 void wipersUpdate(int systemUpdateTime) {
+    selectedIntDelay = intSelectorUpdate();
     wipersInt(systemUpdateTime);
     
     // wiperSelectorUpdate();
@@ -158,8 +159,12 @@ void wiperSelectorUpdate() {
     }
 }
 
-void intSelectorUpdate() {
-    for (int i=0; i<NUM_INT_SPEEDS; i++) {
-        
+int intSelectorUpdate() {
+    float selectorReading = intSelect.read();
+    for (int i=0; i<NUM_INT_SPEEDS-1 ; i++) {
+        if (selectorReading < intSelectorThresholds[i]) {
+            return intDelays[i];
+        }
     }
+    return intDelays[NUM_INT_SPEEDS-1];
 }
