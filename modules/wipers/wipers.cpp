@@ -20,24 +20,24 @@ Should have the following
 //=====[Declaration of private defines]========================================
 
 #define NUM_INT_SPEEDS 3
-#define WIPER_PER_MS_30RPM 3700
-#define WIPER_PER_MS_40RPM 2800
-#define CONT_PERIOD_S 0.0015
+#define POS_PERIOD_S 0.02
 #define DUTY_MIN 0.025
-#define DUTY_MID 0.075
-#define DUTY_MAX 0.125
+#define DUTY_67 0.058
+#define WIPE_TIME_LO 700
+#define WIPE_TIME_HI 500
 
 //=====[Declaration and initialization of private global variables]============
 
-static wiperState_t wiperState;
-static bool wipersRising;
+wiperState_t wiperState;
+bool wipersRising;
 
-static int intDelays[NUM_INT_SPEEDS] = {8000, 6000, 3000};
+int intDelays[NUM_INT_SPEEDS] = {8000, 6000, 3000};
 
-static int selectedIntDelay;
+int selectedIntDelay;
+float intSelectorThresholds[NUM_INT_SPEEDS-1];
 
-static int accumulatedWiperTime;
-static int accumulatedIntDelayTime;
+int accumulatedWiperTime;
+int accumulatedIntDelayTime;
 
 PwmOut wipers(PF_9);
 AnalogIn wiperSelect(A0);
@@ -49,7 +49,7 @@ AnalogIn intSelect(A1);
 
 //=====[Declarations (prototypes) of private functions]=========================
 
-void wipersOff(int systemDelay);
+void wipersOff();
 void wipersInt(int systemDelay);
 void wipersLo(int systemDelay);
 void wipersHi(int systemDelay);
@@ -59,14 +59,18 @@ void intSelectorUpdate();
 //=====[Implementations of public functions]===================================
 
 void wipersInit() {
-    wipers.period(CONT_PERIOD_S);
+    wipers.period(POS_PERIOD_S);
     wipersRising = true;
     wiperState = WIPERS_OFF;
     selectedIntDelay = intDelays[0];
+    for (int i=1; i<NUM_INT_SPEEDS ;i++) {
+        intSelectorThresholds[i] = (1.0*i)/NUM_INT_SPEEDS;
+    }
 }
 
 void wipersUpdate(int systemUpdateTime) {
-    wipers.write(DUTY_MID);
+    wipersInt(systemUpdateTime);
+    
     // wiperSelectorUpdate();
     // switch (wiperState) {
     //     case WIPERS_LO:
@@ -91,41 +95,48 @@ wiperState_t wipersRead() {
 
 //=====[Implementations of private functions]===================================
 
-void wipersOff(int systemDelay) {
-    if (accumulatedWiperTime > 0) {
-        wipers.write(DUTY_MIN);
-        accumulatedWiperTime -= systemDelay;
-    }
-    else {
-        wipersRising = true;
-        wipers.write(DUTY_MID);
-    }
+void wipersOff() {
+    wipers.write(DUTY_MIN);
 }
 
-void wipersInt(int systemDelay) { // NOT COMPLETE
+void wipersInt(int systemDelay) {
     accumulatedIntDelayTime += systemDelay;
-    if (accumulatedIntDelayTime > selectedIntDelay) {
+    if (accumulatedIntDelayTime < WIPE_TIME_LO*2) {
         wipersLo(systemDelay);
+    }
+    else {
+        wipersOff();
+    }
+    if (accumulatedIntDelayTime > selectedIntDelay) {
+        accumulatedIntDelayTime = 0;
     }
 }
 
 void wipersLo(int systemDelay) {
     accumulatedWiperTime += systemDelay;
-    if (accumulatedWiperTime < WIPER_PER_MS_30RPM) {
-        wipers.write(DUTY_MAX);
+    if (accumulatedWiperTime < WIPE_TIME_LO && wipersRising) {
+        wipers.write(DUTY_67);
+    }
+    else if (accumulatedWiperTime < WIPE_TIME_LO && !wipersRising) {
+        wipers.write(DUTY_MIN);
     }
     else {
-        wipersRising = false;
+        accumulatedWiperTime = 0;
+        wipersRising = !wipersRising;
     }
 }
 
 void wipersHi(int systemDelay) {
     accumulatedWiperTime += systemDelay;
-    if (accumulatedWiperTime < WIPER_PER_MS_40RPM) {
-        wipers.write(DUTY_MAX);
+    if (accumulatedWiperTime < WIPE_TIME_HI && wipersRising) {
+        wipers.write(DUTY_67);
+    }
+    else if (accumulatedWiperTime < WIPE_TIME_HI && !wipersRising) {
+        wipers.write(DUTY_MIN);
     }
     else {
-        wipersRising = false;
+        accumulatedWiperTime = 0;
+        wipersRising = !wipersRising;
     }
 }
 
@@ -148,5 +159,7 @@ void wiperSelectorUpdate() {
 }
 
 void intSelectorUpdate() {
-    // placeholder
+    for (int i=0; i<NUM_INT_SPEEDS; i++) {
+        
+    }
 }
