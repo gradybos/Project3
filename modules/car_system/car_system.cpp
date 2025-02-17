@@ -4,18 +4,22 @@
 #include "mbed.h"
 #include "car_system.h"
 #include "ignition.h"
-#include "headlights.h"
+#include "wipers.h"
+#include "display.h"
 
 //=====[Implementations of public functions]===================================
+
+#define SYSTEM_UPDATE_TIME_MS 10
 
 void carSystemInit()
 {
     ignitionInit();
-    headlightsInit();
+    wipersInit();
+    displayInit();
 }
 
 void carSystemUpdate()
 {
     ignitionUpdate();
-    headlightsUpdate();
+    wipersUpdate(10);
 }

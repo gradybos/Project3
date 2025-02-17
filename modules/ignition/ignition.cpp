@@ -11,10 +11,10 @@
 
 //=====[Declaration and initialization of private global variables]============
 
-DigitalIn driveSeatUsed(D0);
-DigitalIn driveBelt(D1);
-DigitalIn passSeatUsed(D2);
-DigitalIn passBelt(D3);
+DigitalIn driveSeatUsed(D10);
+DigitalIn passSeatUsed(D11);
+DigitalIn driveBelt(D12);
+DigitalIn passBelt(D13);
 DigitalIn ignitionButton(BUTTON1);
 
 DigitalOut engineLed(LED2);
