@@ -57,6 +57,7 @@ void wipersHi(int systemDelay);
 void wiperSelectorUpdate();
 void intSelectorUpdate();
 void showingDisplayInit();
+void showingDisplayUpdate();
 
 //=====[Implementations of public functions]===================================
 
@@ -75,42 +76,48 @@ void wipersInit() {
 // for intermittent mode on the LCD display
 void showingDisplayInit() {
     displayCharPositionWrite(0,0);
-    displayStringWrite("Mode: ");
-    displayCharPositionWrite(1,0);
-    displayStringWrite("Int: ");
+    displayStringWrite("Mode: OFF");
+
+    displayCharPositionWrite(0,1);
+    displayStringWrite("Int:  OFF");
 }
 
+void showingDisplayUpdate() {
+    displayCharPositionWrite(0,0);
+    displayStringWrite("Mode:");
+
+    displayCharPositionWrite(0,1);
+    displayStringWrite("Int:");
+}
 
 void wipersUpdate(int systemUpdateTime) {
     wipersInt(systemUpdateTime);
-    
+
+    showingDisplayUpdate();
+
     wiperSelectorUpdate();
     switch (wiperState) {
         case WIPERS_LO:
             wipersLo(systemUpdateTime);
-            displayCharPositionWrite(0,6);
+            displayCharPositionWrite(6,0);
             displayStringWrite("LOW  ");
             break;
         case WIPERS_HI:
             wipersHi(systemUpdateTime);
-            displayCharPositionWrite(0,6);
+            displayCharPositionWrite(6,0);
             displayStringWrite("HIGH ");
             break;
         case WIPERS_INT:
             intSelectorUpdate();
             wipersInt(systemUpdateTime);
-            displayCharPositionWrite(0,6);
+            displayCharPositionWrite(6,0);
             displayStringWrite("INT  ");
             break;
         case WIPERS_OFF:
             wipersOff(systemUpdateTime);
-            displayCharPositionWrite(0,6);
-            displayStringWrite("OFF  ");
             break;
         default:
             wipersOff(systemUpdateTime);
-            displayCharPositionWrite(0,6);
-            displayStringWrite("OFF  ");
     }
 }
 
@@ -175,9 +182,9 @@ void wiperSelectorUpdate() {
     else if (0.5 < wiperSelect.read() && wiperSelect.read() < 0.75 && wiperState == WIPERS_OFF) {
         wiperState = WIPERS_LO;
     }
-    // else if (0.25 < wiperSelect.read() && wiperSelect.read() < 0.5 && wiperState == WIPERS_OFF) {
-    //     wiperState = WIPERS_INT;
-    // }
+    else if (0.25 < wiperSelect.read() && wiperSelect.read() < 0.5 && wiperState == WIPERS_OFF) {
+         wiperState = WIPERS_INT;
+    }
     else {
         wiperState = WIPERS_OFF;
     }

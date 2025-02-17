@@ -42,8 +42,6 @@ void ignitionFail();
 void ignitionInit() {
     driveSeatUsed.mode(PullDown);
     passSeatUsed.mode(PullDown);
-    driveBelt.mode(PullDown);
-    passBelt.mode(PullDown);
     ignitionButton.mode(PullDown);
 }
 
