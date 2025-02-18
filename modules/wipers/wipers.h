@@ -19,6 +19,8 @@ void wipersInit();
 void wipersUpdate(int systemUpdateTime);
 wiperState_t wipersRead();
 
+int getSelectedIntDelay();
+
 //=====[#include guards - end]=================================================
 
 #endif //

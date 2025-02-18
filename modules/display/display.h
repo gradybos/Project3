@@ -19,6 +19,7 @@ void displayStringBinWrite( const uint8_t bin );
 
 void showingDisplayInit();
 void showingDisplayUpdate();
+void displayModeWriteState( const char * str );
 
 //=====[#include guards - end]=================================================
 

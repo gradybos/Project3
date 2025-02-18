@@ -3,6 +3,7 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 #include "display.h"
+#include "wipers.h"
 
 //=====[Declaration of private defines]========================================
 
@@ -88,16 +89,29 @@ void showingDisplayInit() {
     displayStringWrite("Mode: OFF");
 
     displayCharPositionWrite(0,1);
-    displayStringWrite("Int:  OFF");
+    displayStringWrite("Int: ");
 }
 
 void showingDisplayUpdate() {
+    char str[1000];
+
     displayCharPositionWrite(0,0);
     displayStringWrite("Mode:");
 
     displayCharPositionWrite(0,1);
     displayStringWrite("Int:");
+
+    sprintf(str, "%d", getSelectedIntDelay());
+    displayCharPositionWrite(6,1);
+    displayStringWrite(str);
 }
+
+void displayModeWriteState( const char * str ) {
+    displayCharPositionWrite(6,0);
+    displayStringWrite( str );
+}
+
+
 
 void displayInit()
 {
