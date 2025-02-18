@@ -83,6 +83,22 @@ static void displayCodeWrite( bool type, uint8_t dataBus );
 
 //=====[Implementations of public functions]===================================
 
+void showingDisplayInit() {
+    displayCharPositionWrite(0,0);
+    displayStringWrite("Mode: OFF");
+
+    displayCharPositionWrite(0,1);
+    displayStringWrite("Int:  OFF");
+}
+
+void showingDisplayUpdate() {
+    displayCharPositionWrite(0,0);
+    displayStringWrite("Mode:");
+
+    displayCharPositionWrite(0,1);
+    displayStringWrite("Int:");
+}
+
 void displayInit()
 {
     delay( 50 );
@@ -189,8 +205,7 @@ static void displayCodeWrite( bool type, uint8_t dataBus )
 {
     if ( type == DISPLAY_RS_INSTRUCTION )
         displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_INSTRUCTION);
-    else
-        displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_DATA);
+        else        displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_DATA);
     displayPinWrite( DISPLAY_PIN_RW, DISPLAY_RW_WRITE );
     displayDataBusWrite( dataBus );
 }

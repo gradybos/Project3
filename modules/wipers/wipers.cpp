@@ -56,8 +56,6 @@ void wipersLo(int systemDelay);
 void wipersHi(int systemDelay);
 void wiperSelectorUpdate();
 int intSelectorUpdate();
-void showingDisplayInit();
-void showingDisplayUpdate();
 
 //=====[Implementations of public functions]===================================
 
@@ -74,21 +72,7 @@ void wipersInit() {
 
 // display the selected mode, including the delay time selection (SHORT, MEDIUM, or LONG) 
 // for intermittent mode on the LCD display
-void showingDisplayInit() {
-    displayCharPositionWrite(0,0);
-    displayStringWrite("Mode: OFF");
 
-    displayCharPositionWrite(0,1);
-    displayStringWrite("Int:  OFF");
-}
-
-void showingDisplayUpdate() {
-    displayCharPositionWrite(0,0);
-    displayStringWrite("Mode:");
-
-    displayCharPositionWrite(0,1);
-    displayStringWrite("Int:");
-}
 
 void wipersUpdate(int systemUpdateTime) {
     selectedIntDelay = intSelectorUpdate();
@@ -190,6 +174,7 @@ void wiperSelectorUpdate() {
     }
     else {
         wiperState = WIPERS_OFF;
+        displayCharPositionWrite(6,0);
         displayStringWrite("OFF ");
     }
 }

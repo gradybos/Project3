@@ -17,6 +17,9 @@ void displayStringWrite( const char * str );
 
 void displayStringBinWrite( const uint8_t bin );
 
+void showingDisplayInit();
+void showingDisplayUpdate();
+
 //=====[#include guards - end]=================================================
 
 #endif // _DISPLAY_H_
