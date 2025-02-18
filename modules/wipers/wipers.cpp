@@ -137,7 +137,7 @@ void wipersInt(int systemDelay) {
 
 void wipersLo(int systemDelay) {
     accumulatedWiperTime += systemDelay;
-    if (accumulatedWiperTime == 0) {
+    if (accumulatedWiperTime <= systemDelay) {
         servoState = RESTING;
     }
     else if (accumulatedWiperTime < WIPE_TIME_LO) {
@@ -155,7 +155,7 @@ void wipersLo(int systemDelay) {
 
 void wipersHi(int systemDelay) {
     accumulatedWiperTime += systemDelay;
-    if (accumulatedWiperTime == 0) {
+    if (accumulatedWiperTime <= systemDelay) {
         servoState = RESTING;
     }
     else if (accumulatedWiperTime < WIPE_TIME_HI) {
@@ -176,11 +176,11 @@ void wiperSelectorUpdate() {
         displayModeWriteState("HIGH");
         wiperState = WIPERS_HI;
     }
-    else if (0.5 < wiperSelect.read() && wiperSelect.read() < 0.7 && servoState == RESTING) {
+    else if (0.45 < wiperSelect.read() && wiperSelect.read() < 0.55 && servoState == RESTING) {
         displayModeWriteState("LOW ");
         wiperState = WIPERS_LO;
     }
-    else if (0.20 < wiperSelect.read() && wiperSelect.read() < 0.4 && servoState == RESTING) {
+    else if (0.2 < wiperSelect.read() && wiperSelect.read() < 0.3 && servoState == RESTING) {
         wiperState = WIPERS_INT;
         displayModeWriteState("INT ");
     }
