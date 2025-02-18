@@ -3,7 +3,6 @@
 To-do List
     - Refactor display commands to be within display module (use wipersRead function)
     - Average potentiometer readings or add a delay to prevent bouncing
-    - Add states to wipers so that changing settings does not break wipers
     - Make System turn on after igintion and off after system is killed
 */
 
@@ -20,7 +19,7 @@ To-do List
 #define POS_PERIOD_S 0.02
 #define DUTY_MIN 0.025
 #define DUTY_67 0.058
-#define WIPE_TIME_LO 700
+#define WIPE_TIME_LO 900
 #define WIPE_TIME_HI 500
 
 #define POT_SELECT_PADDING 0.1
@@ -73,7 +72,7 @@ int getSelectedIntDelay(){
 void wipersInit(int systemUpdateTime) {
     wipers.period(POS_PERIOD_S);
     wiperState = WIPERS_OFF;
-    servoState = RESTING;
+    servoState = FALLING;
     updateTime = systemUpdateTime;
     selectedIntDelay = intDelays[0];
     for (int i=1; i<NUM_INT_SPEEDS ;i++) {
@@ -145,13 +144,13 @@ void wipersLo() {
         servoState = RISING;
         wipers.write(DUTY_67);
     }
-    else if (accumulatedWiperTime >= WIPE_TIME_LO) {
-        servoState = FALLING;
-        wipers.write(DUTY_MIN);
-    }
     else if (accumulatedWiperTime >= WIPE_TIME_LO*2) {
         accumulatedWiperTime = 0;
     }
+    else if (accumulatedWiperTime >= WIPE_TIME_LO) {
+        servoState = FALLING;
+        wipers.write(DUTY_MIN);
+    }   
 }
 
 void wipersHi() {
@@ -163,34 +162,45 @@ void wipersHi() {
         servoState = RISING;
         wipers.write(DUTY_67);
     }
+    else if (accumulatedWiperTime >= WIPE_TIME_HI*2) {
+        accumulatedWiperTime = 0;
+    }
     else if (accumulatedWiperTime >= WIPE_TIME_HI) {
         servoState = FALLING;
         wipers.write(DUTY_MIN);
-    }
-    else if (accumulatedWiperTime >= WIPE_TIME_HI*2) {
-        accumulatedWiperTime = 0;
     }
 }
 
 void wiperSelectorUpdate() {
     float reading = wiperSelect.read();
-    //\left(\frac{3}{4}\right)+\frac{p}{2}<\ x
 
-    if ( 0.75 < reading && servoState == RESTING) {
+    if ( 0.75 + POT_SELECT_PADDING/2 < reading) {
         displayModeWriteState("HIGH");
-        wiperState = WIPERS_HI;
+        if (servoState == RESTING){
+            wiperState = WIPERS_HI;
+        }
     }
-    else if (0.50 < reading < 0.75  && servoState == RESTING) {
+
+    else if ( 0.50 + POT_SELECT_PADDING/2 < reading && reading < 0.75 - POT_SELECT_PADDING/2 && servoState == RESTING) {
         displayModeWriteState("LOW ");
-        wiperState = WIPERS_LO;
+        if (servoState == RESTING){
+            wiperState = WIPERS_LO;
+        }
+   
     }
-    else if (0.25 < reading < 0.50) {
-        wiperState = WIPERS_INT;
+    else if ( 0.25 + POT_SELECT_PADDING/2 < reading && reading  < 0.50 - POT_SELECT_PADDING/2 && servoState == RESTING) {
         displayModeWriteState("INT ");
+        if (servoState == RESTING){
+            wiperState = WIPERS_INT;
+        }
+        
     }
-    else if (reading < 0.25 ) {
-        wiperState = WIPERS_OFF;
+    else if (reading < 0.25 - POT_SELECT_PADDING/2 && servoState == RESTING) {
         displayModeWriteState("OFF ");
+        if (servoState == RESTING){
+            wiperState = WIPERS_OFF;
+        }
+        
     }
 }
 
