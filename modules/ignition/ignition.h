@@ -5,7 +5,7 @@
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void ignitionInit();
+void ignitionInit(int systemUpdateTime);
 void ignitionUpdate();
 bool ignitionRead();
 
