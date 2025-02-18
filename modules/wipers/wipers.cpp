@@ -24,7 +24,15 @@ To-do List
 
 //=====[Declaration and initialization of private global variables]============
 
+typedef enum {
+    RESTING,
+    RISING,
+    PEAKING,
+    FALLING
+} servoState_t;
+
 wiperState_t wiperState;
+servoState_t servoState;
 bool wipersRising;
 
 int intDelays[NUM_INT_SPEEDS] = {8000, 6000, 3000};
@@ -76,11 +84,7 @@ void wipersInit() {
 
 
 void wipersUpdate(int systemUpdateTime) {
-    selectedIntDelay = intSelectorUpdate();
-    wipersInt(systemUpdateTime);
-
     showingDisplayUpdate();
-
     wiperSelectorUpdate();
     switch (wiperState) {
         case WIPERS_LO:
@@ -91,7 +95,7 @@ void wipersUpdate(int systemUpdateTime) {
             // displayStringWrite("HIGH ");
             break;
         case WIPERS_INT:
-            intSelectorUpdate();
+            selectedIntDelay = intSelectorUpdate();
             wipersInt(systemUpdateTime);
             // displayStringWrite("INT  ");
             break;
