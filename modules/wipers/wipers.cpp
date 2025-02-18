@@ -4,6 +4,7 @@ To-do List
     - Refactor display commands to be within display module (use wipersRead function)
     - Average potentiometer readings or add a delay to prevent bouncing
     - Add states to wipers so that changing settings does not break wipers
+    - Make System turn on after igintion and off after system is killed
 */
 
 //=====[Libraries]=============================================================
@@ -172,7 +173,7 @@ void wipersHi(int systemDelay) {
 }
 
 void wiperSelectorUpdate() {
-    if (wiperSelect.read() > 0.8 && servoState == RESTING) {
+    if (wiperSelect.read() > 0.8) {
         displayModeWriteState("HIGH");
         wiperState = WIPERS_HI;
     }

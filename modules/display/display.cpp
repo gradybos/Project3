@@ -89,7 +89,7 @@ void showingDisplayInit() {
     displayStringWrite("Mode: OFF");
 
     displayCharPositionWrite(0,1);
-    displayStringWrite("Int: ");
+    displayStringWrite("Int: 0 Seconds");
 }
 
 void showingDisplayUpdate() {
@@ -102,7 +102,7 @@ void showingDisplayUpdate() {
     displayStringWrite("Int:");
 
     sprintf(str, "%d", getSelectedIntDelay());
-    displayCharPositionWrite(6,1);
+    displayCharPositionWrite(5,1);
     displayStringWrite(str);
 }
 
