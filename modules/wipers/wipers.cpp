@@ -23,6 +23,8 @@ To-do List
 #define WIPE_TIME_LO 700
 #define WIPE_TIME_HI 500
 
+#define POT_SELECT_PADDING 0.1
+
 //=====[Declaration and initialization of private global variables]============
 
 typedef enum {
@@ -113,7 +115,7 @@ wiperState_t wipersRead() {
 void wipersOff() {
     wipers.write(DUTY_MIN);
     accumulatedWiperTime += updateTime;
-    if (accumulatedWiperTime > WIPE_TIME_LO*2) {
+    if (accumulatedWiperTime > WIPE_TIME_LO) {
         servoState = RESTING;
         accumulatedWiperTime = 0;
     }
@@ -172,19 +174,21 @@ void wipersHi() {
 
 void wiperSelectorUpdate() {
     float reading = wiperSelect.read();
-    if (reading > 0.7 && servoState == RESTING) {
+    //\left(\frac{3}{4}\right)+\frac{p}{2}<\ x
+
+    if ( 0.75 < reading && servoState == RESTING) {
         displayModeWriteState("HIGH");
         wiperState = WIPERS_HI;
     }
-    else if (0.45 < reading && reading < 0.55 && servoState == RESTING) {
+    else if (0.50 < reading < 0.75  && servoState == RESTING) {
         displayModeWriteState("LOW ");
         wiperState = WIPERS_LO;
     }
-    else if (0.2 < reading && reading < 0.3 && servoState == RESTING) {
+    else if (0.25 < reading < 0.50) {
         wiperState = WIPERS_INT;
         displayModeWriteState("INT ");
     }
-    else if (reading < 0.10) {
+    else if (reading < 0.25 ) {
         wiperState = WIPERS_OFF;
         displayModeWriteState("OFF ");
     }
