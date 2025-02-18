@@ -22,9 +22,9 @@ DigitalOut ignitionLed(LED1);
 
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
-static bool welcomed = false;
+bool welcomed = false;
 
-static int updateTime_ms = 10;
+int updateTime_ms;
 
 //=====[Declarations (prototypes) of private functions]========================
 
@@ -39,7 +39,8 @@ void ignitionFail();
 
 //=====[Implementations of public functions]===================================
 
-void ignitionInit() {
+void ignitionInit(int updateTime) {
+    updateTime_ms = updateTime;
     driveSeatUsed.mode(PullDown);
     passSeatUsed.mode(PullDown);
     ignitionButton.mode(PullDown);
@@ -75,7 +76,6 @@ void ignitionUpdate() {
             ignitionFail();
         }
         }
-        delay(updateTime_ms);
 }
 
 bool ignitionRead() {

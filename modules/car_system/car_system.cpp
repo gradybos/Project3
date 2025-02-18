@@ -13,13 +13,14 @@
 
 void carSystemInit()
 {
-    ignitionInit();
+    ignitionInit(SYSTEM_UPDATE_TIME_MS);
     displayInit();
-    wipersInit();
+    wipersInit(SYSTEM_DELAY_MS);
 }
 
 void carSystemUpdate()
 {
     ignitionUpdate();
-    wipersUpdate(SYSTEM_DELAY_MS);
+    wipersUpdate();
+    delay(SYSTEM_UPDATE_TIME_MS);
 }

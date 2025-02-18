@@ -15,8 +15,8 @@ typedef enum {
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void wipersInit();
-void wipersUpdate(int systemUpdateTime);
+void wipersInit(int systemUpdateTime);
+void wipersUpdate();
 wiperState_t wipersRead();
 
 int getSelectedIntDelay();
