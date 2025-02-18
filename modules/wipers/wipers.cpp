@@ -173,7 +173,7 @@ void wipersHi(int systemDelay) {
 }
 
 void wiperSelectorUpdate() {
-    if (wiperSelect.read() > 0.8) {
+    if (wiperSelect.read() > 0.7 && servoState == RESTING) {
         displayModeWriteState("HIGH");
         wiperState = WIPERS_HI;
     }
