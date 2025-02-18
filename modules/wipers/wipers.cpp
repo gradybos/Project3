@@ -67,7 +67,7 @@ void wipersInit() {
     wiperState = WIPERS_OFF;
     selectedIntDelay = intDelays[0];
     for (int i=1; i<NUM_INT_SPEEDS ;i++) {
-        intSelectorThresholds[i] = (1.0*i)/NUM_INT_SPEEDS;
+        intSelectorThresholds[i-1] = (1.0*i)/NUM_INT_SPEEDS;
     }
     showingDisplayInit();
 }
