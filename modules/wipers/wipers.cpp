@@ -165,11 +165,11 @@ void wiperSelectorUpdate() {
         displayModeWriteState("LOW ");
         wiperState = WIPERS_LO;
     }
-    else if (0.2 < wiperSelect.read() && wiperSelect.read() < 0.4) {
+    else if (0.20 < wiperSelect.read() && wiperSelect.read() < 0.4) {
         wiperState = WIPERS_INT;
         displayModeWriteState("INT ");
     }
-    else {
+    else if (wiperSelect.read() < 0.10) {
         wiperState = WIPERS_OFF;
         displayModeWriteState("OFF ");
     }
