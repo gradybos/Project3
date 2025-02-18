@@ -168,6 +168,7 @@ void wiperSelectorUpdate() {
         wiperState = WIPERS_INT;
         displayCharPositionWrite(6,0);
         displayStringWrite("INT ");
+    }
     else {
         wiperState = WIPERS_OFF;
         displayCharPositionWrite(6,0);
