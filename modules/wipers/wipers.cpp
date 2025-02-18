@@ -27,13 +27,11 @@ To-do List
 typedef enum {
     RESTING,
     RISING,
-    PEAKING,
     FALLING
 } servoState_t;
 
 wiperState_t wiperState;
 servoState_t servoState;
-bool wipersRising;
 
 int intDelays[NUM_INT_SPEEDS] = {8000, 6000, 3000};
 
@@ -70,8 +68,8 @@ int getSelectedIntDelay(){
 
 void wipersInit() {
     wipers.period(POS_PERIOD_S);
-    wipersRising = true;
     wiperState = WIPERS_OFF;
+    servoState = RESTING;
     selectedIntDelay = intDelays[0];
     for (int i=1; i<NUM_INT_SPEEDS ;i++) {
         intSelectorThresholds[i-1] = (1.0*i)/NUM_INT_SPEEDS;
@@ -115,6 +113,11 @@ wiperState_t wipersRead() {
 
 void wipersOff(int systemDelay) {
     wipers.write(DUTY_MIN);
+    accumulatedWiperTime += systemDelay;
+    if (accumulatedWiperTime > WIPE_TIME_LO*2) {
+        servoState = RESTING;
+        accumulatedWiperTime = 0;
+    }
 }
 
 void wipersInt(int systemDelay) {
@@ -134,29 +137,37 @@ void wipersInt(int systemDelay) {
 
 void wipersLo(int systemDelay) {
     accumulatedWiperTime += systemDelay;
-    if (accumulatedWiperTime < WIPE_TIME_LO && wipersRising) {
+    if (accumulatedWiperTime == 0) {
+        servoState = RESTING;
+    }
+    else if (accumulatedWiperTime < WIPE_TIME_LO) {
+        servoState = RISING;
         wipers.write(DUTY_67);
     }
-    else if (accumulatedWiperTime < WIPE_TIME_LO && !wipersRising) {
+    else if (accumulatedWiperTime >= WIPE_TIME_LO) {
+        servoState = FALLING;
         wipers.write(DUTY_MIN);
     }
-    else {
+    else if (accumulatedWiperTime >= WIPE_TIME_LO*2) {
         accumulatedWiperTime = 0;
-        wipersRising = !wipersRising;
     }
 }
 
 void wipersHi(int systemDelay) {
     accumulatedWiperTime += systemDelay;
-    if (accumulatedWiperTime < WIPE_TIME_HI && wipersRising) {
+    if (accumulatedWiperTime == 0) {
+        servoState = RESTING;
+    }
+    else if (accumulatedWiperTime < WIPE_TIME_HI) {
+        servoState = RISING;
         wipers.write(DUTY_67);
     }
-    else if (accumulatedWiperTime < WIPE_TIME_HI && !wipersRising) {
+    else if (accumulatedWiperTime >= WIPE_TIME_HI) {
+        servoState = FALLING;
         wipers.write(DUTY_MIN);
     }
-    else {
+    else if (accumulatedWiperTime >= WIPE_TIME_HI*2) {
         accumulatedWiperTime = 0;
-        wipersRising = !wipersRising;
     }
 }
 
