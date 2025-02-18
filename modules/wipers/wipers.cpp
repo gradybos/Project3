@@ -55,13 +55,9 @@ void wipersInt(int systemDelay);
 void wipersLo(int systemDelay);
 void wipersHi(int systemDelay);
 void wiperSelectorUpdate();
-<<<<<<< HEAD
 int intSelectorUpdate();
-=======
-void intSelectorUpdate();
 void showingDisplayInit();
 void showingDisplayUpdate();
->>>>>>> caf30897a4983c1e390abf6cfe576e43b7a1fdab
 
 //=====[Implementations of public functions]===================================
 
