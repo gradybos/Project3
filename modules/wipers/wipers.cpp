@@ -172,15 +172,15 @@ void wipersHi(int systemDelay) {
 }
 
 void wiperSelectorUpdate() {
-    if (wiperSelect.read() > 0.8) {
+    if (wiperSelect.read() > 0.8 && servoState == RESTING) {
         displayModeWriteState("HIGH");
         wiperState = WIPERS_HI;
     }
-    else if (0.5 < wiperSelect.read() && wiperSelect.read() < 0.7) {
+    else if (0.5 < wiperSelect.read() && wiperSelect.read() < 0.7 && servoState == RESTING) {
         displayModeWriteState("LOW ");
         wiperState = WIPERS_LO;
     }
-    else if (0.20 < wiperSelect.read() && wiperSelect.read() < 0.4) {
+    else if (0.20 < wiperSelect.read() && wiperSelect.read() < 0.4 && servoState == RESTING) {
         wiperState = WIPERS_INT;
         displayModeWriteState("INT ");
     }
