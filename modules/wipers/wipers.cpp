@@ -100,19 +100,15 @@ void wipersUpdate(int systemUpdateTime) {
     switch (wiperState) {
         case WIPERS_LO:
             wipersLo(systemUpdateTime);
-            displayCharPositionWrite(6,0);
-            displayStringWrite("LOW  ");
             break;
         case WIPERS_HI:
             wipersHi(systemUpdateTime);
-            displayCharPositionWrite(6,0);
-            displayStringWrite("HIGH ");
+            // displayStringWrite("HIGH ");
             break;
         case WIPERS_INT:
             intSelectorUpdate();
             wipersInt(systemUpdateTime);
-            displayCharPositionWrite(6,0);
-            displayStringWrite("INT  ");
+            // displayStringWrite("INT  ");
             break;
         case WIPERS_OFF:
             wipersOff(systemUpdateTime);
@@ -178,16 +174,23 @@ void wiperSelectorUpdate() {
         wiperState = WIPERS_OFF;
     }
     else if (wiperSelect.read() > 0.75 && wiperState == WIPERS_OFF) {
+        displayCharPositionWrite(6,0);
+        displayStringWrite("HIGH ");
         wiperState = WIPERS_HI;
     }
     else if (0.5 < wiperSelect.read() && wiperSelect.read() < 0.75 && wiperState == WIPERS_OFF) {
+        displayCharPositionWrite(6,0);
+        displayStringWrite("LOW  ");
         wiperState = WIPERS_LO;
     }
     else if (0.25 < wiperSelect.read() && wiperSelect.read() < 0.5 && wiperState == WIPERS_OFF) {
-         wiperState = WIPERS_INT;
+        wiperState = WIPERS_INT;
+        displayCharPositionWrite(6,0);
+        displayStringWrite("INT ");
     }
     else {
         wiperState = WIPERS_OFF;
+        displayStringWrite("OFF ");
     }
 }
 
