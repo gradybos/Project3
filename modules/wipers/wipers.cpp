@@ -3,7 +3,6 @@
 To-do List
     - Refactor display commands to be within display module (use wipersRead function)
     - Average potentiometer readings or add a delay to prevent bouncing
-    - Add states to wipers so that changing settings does not break wipers
     - Make System turn on after igintion and off after system is killed
 */
 
@@ -20,7 +19,7 @@ To-do List
 #define POS_PERIOD_S 0.02
 #define DUTY_MIN 0.025
 #define DUTY_67 0.058
-#define WIPE_TIME_LO 700
+#define WIPE_TIME_LO 900
 #define WIPE_TIME_HI 500
 
 //=====[Declaration and initialization of private global variables]============
@@ -71,7 +70,7 @@ int getSelectedIntDelay(){
 void wipersInit(int systemUpdateTime) {
     wipers.period(POS_PERIOD_S);
     wiperState = WIPERS_OFF;
-    servoState = RESTING;
+    servoState = FALLING;
     updateTime = systemUpdateTime;
     selectedIntDelay = intDelays[0];
     for (int i=1; i<NUM_INT_SPEEDS ;i++) {
@@ -89,17 +88,21 @@ void wipersUpdate() {
     wiperSelectorUpdate();
     switch (wiperState) {
         case WIPERS_LO:
+            displayModeWriteState("LOW ");
             wipersLo();
             break;
         case WIPERS_HI:
+            displayModeWriteState("HIGH");
             wipersHi();
             break;
         case WIPERS_INT:
+            displayModeWriteState("INT ");
             selectedIntDelay = intSelectorUpdate();
             wipersInt();
             break;
         case WIPERS_OFF:
         default:
+            displayModeWriteState("OFF ");
             wipersOff();
     }
 }
@@ -143,13 +146,13 @@ void wipersLo() {
         servoState = RISING;
         wipers.write(DUTY_67);
     }
-    else if (accumulatedWiperTime >= WIPE_TIME_LO) {
-        servoState = FALLING;
-        wipers.write(DUTY_MIN);
-    }
     else if (accumulatedWiperTime >= WIPE_TIME_LO*2) {
         accumulatedWiperTime = 0;
     }
+    else if (accumulatedWiperTime >= WIPE_TIME_LO) {
+        servoState = FALLING;
+        wipers.write(DUTY_MIN);
+    }   
 }
 
 void wipersHi() {
@@ -161,32 +164,32 @@ void wipersHi() {
         servoState = RISING;
         wipers.write(DUTY_67);
     }
+    else if (accumulatedWiperTime >= WIPE_TIME_HI*2) {
+        accumulatedWiperTime = 0;
+    }
     else if (accumulatedWiperTime >= WIPE_TIME_HI) {
         servoState = FALLING;
         wipers.write(DUTY_MIN);
-    }
-    else if (accumulatedWiperTime >= WIPE_TIME_HI*2) {
-        accumulatedWiperTime = 0;
     }
 }
 
 void wiperSelectorUpdate() {
     float reading = wiperSelect.read();
     if (reading > 0.7 && servoState == RESTING) {
-        displayModeWriteState("HIGH");
+        
         wiperState = WIPERS_HI;
     }
     else if (0.45 < reading && reading < 0.55 && servoState == RESTING) {
-        displayModeWriteState("LOW ");
+        
         wiperState = WIPERS_LO;
     }
     else if (0.2 < reading && reading < 0.3 && servoState == RESTING) {
         wiperState = WIPERS_INT;
-        displayModeWriteState("INT ");
+        
     }
     else if (reading < 0.10) {
         wiperState = WIPERS_OFF;
-        displayModeWriteState("OFF ");
+        
     }
 }
 
