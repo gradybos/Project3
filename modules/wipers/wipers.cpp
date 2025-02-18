@@ -154,10 +154,7 @@ void wipersHi(int systemDelay) {
 }
 
 void wiperSelectorUpdate() {
-    if (!wipersRising) {
-        wiperState = WIPERS_OFF;
-    }
-    else if (wiperSelect.read() > 0.75 && wiperState == WIPERS_OFF) {
+    if (wiperSelect.read() > 0.75 && wiperState == WIPERS_OFF) {
         displayCharPositionWrite(6,0);
         displayStringWrite("HIGH ");
         wiperState = WIPERS_HI;
