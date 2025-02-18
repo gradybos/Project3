@@ -1,14 +1,9 @@
 /*
 
-Should have the following
-    -Potentiometer selects between 4 modes
-        -Hi, Lo, Int, Off
-        -Hi => 0-67 degrees at 40 rpm
-        -Lo => 0-67 degrees at 30 rpm
-        -Int => Same params as low, add delays between "wipes"
-            -Should wait 3, 6, or 8 seconds depending on potentiometer input
-    -Read wiper setting (for display)
-
+To-do List
+    - Refactor display commands to be within display module (use wipersRead function)
+    - Average potentiometer readings or add a delay to prevent bouncing
+    - Add states to wipers so that changing settings does not break wipers
 */
 
 //=====[Libraries]=============================================================
@@ -154,17 +149,17 @@ void wipersHi(int systemDelay) {
 }
 
 void wiperSelectorUpdate() {
-    if (wiperSelect.read() > 0.75) {
+    if (wiperSelect.read() > 0.8) {
         displayCharPositionWrite(6,0);
         displayStringWrite("HIGH ");
         wiperState = WIPERS_HI;
     }
-    else if (0.5 < wiperSelect.read() && wiperSelect.read() < 0.75) {
+    else if (0.5 < wiperSelect.read() && wiperSelect.read() < 0.7) {
         displayCharPositionWrite(6,0);
         displayStringWrite("LOW  ");
         wiperState = WIPERS_LO;
     }
-    else if (0.25 < wiperSelect.read() && wiperSelect.read() < 0.5) {
+    else if (0.2 < wiperSelect.read() && wiperSelect.read() < 0.4) {
         wiperState = WIPERS_INT;
         displayCharPositionWrite(6,0);
         displayStringWrite("INT ");
