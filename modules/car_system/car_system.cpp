@@ -5,6 +5,7 @@
 #include "car_system.h"
 #include "ignition.h"
 #include "wipers.h"
+#include "display.h"
 
 //=====[Implementations of public functions]===================================
 
@@ -13,11 +14,12 @@
 void carSystemInit()
 {
     ignitionInit();
+    displayInit();
     wipersInit();
 }
 
 void carSystemUpdate()
 {
     ignitionUpdate();
-    wipersUpdate(10);
+    wipersUpdate(SYSTEM_DELAY_MS);
 }

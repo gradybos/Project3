@@ -42,17 +42,17 @@
 #define DISPLAY_RW_WRITE 0
 #define DISPLAY_RW_READ  1
 
-#define DISPLAY_PIN_RS  8
-#define DISPLAY_PIN_RW  10
-#define DISPLAY_PIN_EN  9
-#define DISPLAY_PIN_D0  0  
-#define DISPLAY_PIN_D1  1  
-#define DISPLAY_PIN_D2  2  
-#define DISPLAY_PIN_D3  3
-#define DISPLAY_PIN_D4  4
-#define DISPLAY_PIN_D5  5 
-#define DISPLAY_PIN_D6  6 
-#define DISPLAY_PIN_D7  7 
+#define DISPLAY_PIN_RS  4
+#define DISPLAY_PIN_RW  5
+#define DISPLAY_PIN_EN  6
+#define DISPLAY_PIN_D0  7  
+#define DISPLAY_PIN_D1  8  
+#define DISPLAY_PIN_D2  9  
+#define DISPLAY_PIN_D3 10
+#define DISPLAY_PIN_D4 11
+#define DISPLAY_PIN_D5 12 
+#define DISPLAY_PIN_D6 13 
+#define DISPLAY_PIN_D7 14 
 
 //=====[Declaration of private data types]=====================================
 
@@ -66,8 +66,8 @@ DigitalOut displayD4( D4 );
 DigitalOut displayD5( D5 );
 DigitalOut displayD6( D6 );
 DigitalOut displayD7( D7 );
-DigitalOut displayRs( D8 );
-DigitalOut displayEn( D9 );
+DigitalOut displayEn( D8 );
+DigitalOut displayRs( D9 );
 
 //=====[Declaration of external public global variables]=======================
 
@@ -189,7 +189,7 @@ static void displayCodeWrite( bool type, uint8_t dataBus )
 {
     if ( type == DISPLAY_RS_INSTRUCTION )
         displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_INSTRUCTION);
-        else
+    else
         displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_DATA);
     displayPinWrite( DISPLAY_PIN_RW, DISPLAY_RW_WRITE );
     displayDataBusWrite( dataBus );

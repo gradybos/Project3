@@ -3,13 +3,20 @@
 #ifndef _DISPLAY_H_
 #define _DISPLAY_H_
 
-//=====[Declarations of public datatypes]=========================
+//=====[Declaration of public defines]=========================================
+
+//=====[Declaration of public data types]======================================
 
 //=====[Declarations (prototypes) of public functions]=========================
 
-void displayInit();
-void displayUpdate();
+void displayInit( void );
+ 
+void displayCharPositionWrite( uint8_t charPositionX, uint8_t charPositionY );
+
+void displayStringWrite( const char * str );
+
+void displayStringBinWrite( const uint8_t bin );
 
 //=====[#include guards - end]=================================================
 
-#endif //
+#endif // _DISPLAY_H_

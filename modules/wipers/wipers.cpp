@@ -16,6 +16,7 @@ Should have the following
 #include "mbed.h"
 #include "arm_book_lib.h"
 #include "wipers.h"
+#include "display.h"
 
 //=====[Declaration of private defines]========================================
 
@@ -49,12 +50,18 @@ AnalogIn intSelect(A1);
 
 //=====[Declarations (prototypes) of private functions]=========================
 
-void wipersOff();
+void wipersOff(int systemDelay);
 void wipersInt(int systemDelay);
 void wipersLo(int systemDelay);
 void wipersHi(int systemDelay);
 void wiperSelectorUpdate();
+<<<<<<< HEAD
 int intSelectorUpdate();
+=======
+void intSelectorUpdate();
+void showingDisplayInit();
+void showingDisplayUpdate();
+>>>>>>> caf30897a4983c1e390abf6cfe576e43b7a1fdab
 
 //=====[Implementations of public functions]===================================
 
@@ -66,28 +73,57 @@ void wipersInit() {
     for (int i=1; i<NUM_INT_SPEEDS ;i++) {
         intSelectorThresholds[i] = (1.0*i)/NUM_INT_SPEEDS;
     }
+    showingDisplayInit();
+}
+
+// display the selected mode, including the delay time selection (SHORT, MEDIUM, or LONG) 
+// for intermittent mode on the LCD display
+void showingDisplayInit() {
+    displayCharPositionWrite(0,0);
+    displayStringWrite("Mode: OFF");
+
+    displayCharPositionWrite(0,1);
+    displayStringWrite("Int:  OFF");
+}
+
+void showingDisplayUpdate() {
+    displayCharPositionWrite(0,0);
+    displayStringWrite("Mode:");
+
+    displayCharPositionWrite(0,1);
+    displayStringWrite("Int:");
 }
 
 void wipersUpdate(int systemUpdateTime) {
     selectedIntDelay = intSelectorUpdate();
     wipersInt(systemUpdateTime);
-    
-    // wiperSelectorUpdate();
-    // switch (wiperState) {
-    //     case WIPERS_LO:
-    //         wipersLo(systemUpdateTime);
-    //         break;
-    //     case WIPERS_HI:
-    //         wipersHi(systemUpdateTime);
-    //         break;
-    //     case WIPERS_INT:
-    //         intSelectorUpdate();
-    //         wipersInt(systemUpdateTime);
-    //         break;
-    //     case WIPERS_OFF:
-    //     default:
-    //         wipersOff(systemUpdateTime);
-    // }
+
+    showingDisplayUpdate();
+
+    wiperSelectorUpdate();
+    switch (wiperState) {
+        case WIPERS_LO:
+            wipersLo(systemUpdateTime);
+            displayCharPositionWrite(6,0);
+            displayStringWrite("LOW  ");
+            break;
+        case WIPERS_HI:
+            wipersHi(systemUpdateTime);
+            displayCharPositionWrite(6,0);
+            displayStringWrite("HIGH ");
+            break;
+        case WIPERS_INT:
+            intSelectorUpdate();
+            wipersInt(systemUpdateTime);
+            displayCharPositionWrite(6,0);
+            displayStringWrite("INT  ");
+            break;
+        case WIPERS_OFF:
+            wipersOff(systemUpdateTime);
+            break;
+        default:
+            wipersOff(systemUpdateTime);
+    }
 }
 
 wiperState_t wipersRead() {
@@ -96,7 +132,7 @@ wiperState_t wipersRead() {
 
 //=====[Implementations of private functions]===================================
 
-void wipersOff() {
+void wipersOff(int systemDelay) {
     wipers.write(DUTY_MIN);
 }
 
@@ -106,7 +142,7 @@ void wipersInt(int systemDelay) {
         wipersLo(systemDelay);
     }
     else {
-        wipersOff();
+        wipersOff(systemDelay);
     }
     if (accumulatedIntDelayTime > selectedIntDelay) {
         accumulatedIntDelayTime = 0;
@@ -151,9 +187,9 @@ void wiperSelectorUpdate() {
     else if (0.5 < wiperSelect.read() && wiperSelect.read() < 0.75 && wiperState == WIPERS_OFF) {
         wiperState = WIPERS_LO;
     }
-    // else if (0.25 < wiperSelect.read() && wiperSelect.read() < 0.5 && wiperState == WIPERS_OFF) {
-    //     wiperState = WIPERS_INT;
-    // }
+    else if (0.25 < wiperSelect.read() && wiperSelect.read() < 0.5 && wiperState == WIPERS_OFF) {
+         wiperState = WIPERS_INT;
+    }
     else {
         wiperState = WIPERS_OFF;
     }
