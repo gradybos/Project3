@@ -56,8 +56,14 @@ void wipersLo(int systemDelay);
 void wipersHi(int systemDelay);
 void wiperSelectorUpdate();
 int intSelectorUpdate();
+void showingDisplayUpdate();
 
 //=====[Implementations of public functions]===================================
+
+
+int getSelectedIntDelay(){
+    return selectedIntDelay/1000;
+}
 
 void wipersInit() {
     wipers.period(POS_PERIOD_S);
@@ -113,9 +119,11 @@ void wipersOff(int systemDelay) {
 }
 
 void wipersInt(int systemDelay) {
+
     accumulatedIntDelayTime += systemDelay;
     if (accumulatedIntDelayTime < WIPE_TIME_LO*2) {
         wipersLo(systemDelay);
+        
     }
     else {
         wipersOff(systemDelay);
@@ -155,24 +163,20 @@ void wipersHi(int systemDelay) {
 
 void wiperSelectorUpdate() {
     if (wiperSelect.read() > 0.75) {
-        displayCharPositionWrite(6,0);
-        displayStringWrite("HIGH ");
+        displayModeWriteState("HIGH");
         wiperState = WIPERS_HI;
     }
     else if (0.5 < wiperSelect.read() && wiperSelect.read() < 0.75) {
-        displayCharPositionWrite(6,0);
-        displayStringWrite("LOW  ");
+        displayModeWriteState("LOW ");
         wiperState = WIPERS_LO;
     }
     else if (0.25 < wiperSelect.read() && wiperSelect.read() < 0.5) {
         wiperState = WIPERS_INT;
-        displayCharPositionWrite(6,0);
-        displayStringWrite("INT ");
+        displayModeWriteState("INT ");
     }
     else {
         wiperState = WIPERS_OFF;
-        displayCharPositionWrite(6,0);
-        displayStringWrite("OFF ");
+        displayModeWriteState("OFF ");
     }
 }
 
