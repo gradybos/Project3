@@ -20,6 +20,9 @@ void displayStringBinWrite( const uint8_t bin );
 void showingDisplayInit();
 void showingDisplayUpdate();
 
+void displayWriteMode(const char * mode);
+void displayWriteInt(const char * intDelay);
+
 //=====[#include guards - end]=================================================
 
 #endif // _DISPLAY_H_

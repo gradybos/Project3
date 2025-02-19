@@ -95,12 +95,6 @@ void showingDisplayInit() {
     displayStringWrite("Int: SHORT ");
 }
 
-void showingDisplayUpdate() {
-
-    displayModeWriteState(wipersReadState());
-    displayIntWriteState(wipersReadInt());
-}
-
 void displayInit()
 {
     delay( 50 );
@@ -201,23 +195,23 @@ void displayStringBinWrite( const uint8_t bin )
     displayCodeWrite(DISPLAY_RS_DATA, bin);
 }
 
-//=====[Implementations of private functions]==================================
-
-void displayModeWriteState( const char * str ) {
+void displayWriteMode( const char * str ) {
     displayCharPositionWrite(6,0);
     displayStringWrite( str );
 }
 
-void displayIntWriteState( const char * str ) {
+void displayWriteInt( const char * str ) {
     displayCharPositionWrite(5,1);
     displayStringWrite( str );
 }
+
+//=====[Implementations of private functions]==================================
 
 static void displayCodeWrite( bool type, uint8_t dataBus )
 {
     if ( type == DISPLAY_RS_INSTRUCTION )
         displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_INSTRUCTION);
-        else        displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_DATA);
+    else        displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_DATA);
     displayPinWrite( DISPLAY_PIN_RW, DISPLAY_RW_WRITE );
     displayDataBusWrite( dataBus );
 }

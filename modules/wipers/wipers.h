@@ -16,8 +16,6 @@ typedef enum {
 
 void wipersInit(int systemUpdateTime);
 void wipersUpdate();
-const char * wipersReadState();
-const char * wipersReadInt();
 
 int getSelectedIntDelay();
 

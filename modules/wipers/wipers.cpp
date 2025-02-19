@@ -9,14 +9,12 @@
 //=====[Declaration of private defines]========================================
 
 #define NUM_INT_SPEEDS 3
-#define MAX_STATE_LENGTH 4
-#define MAX_INT_LENGTH 6
 
 #define POS_PERIOD_S 0.02
 #define POS_PERIOD_MS 20
 #define DUTY_MIN 0.025
-#define DUTY_INCREMENT_LO 0.00107
-#define DUTY_INCREMENT_HI 0.001815
+#define DUTY_INCREMENT_LO 0.001773
+#define DUTY_INCREMENT_HI 0.002364
 #define DUTY_67 0.058
 
 #define SHORT_INT_DELAY 3000
@@ -24,6 +22,7 @@
 #define LONG_INT_DELAY 8000
 
 #define POT_SELECT_PADDING 0.1
+#define FALLING_INCREMENT_ADJUST 2.5
 
 //=====[Declaration and initialization of private global variables]============
 
@@ -35,11 +34,9 @@ typedef enum {
 
 // Wiper state variables
 wiperState_t wiperState;
-char * stateStr = new char[4];
 
 // Interval delay variables
 int intDelays[NUM_INT_SPEEDS] = {LONG_INT_DELAY, MEDIUM_INT_DELAY, SHORT_INT_DELAY};
-char * intDelayStr = new char[6];
 int prevIntDelay;
 int selectedIntDelay;
 float intSelectorThresholds[NUM_INT_SPEEDS-1];
@@ -69,6 +66,7 @@ void wipersHi();
 void wiperSelectorUpdate();
 int intSelectorUpdate();
 void showingDisplayUpdate();
+const char *intDelayToStr();
 
 //=====[Implementations of public functions]===================================
 
@@ -106,7 +104,7 @@ void wipersUpdate() {
                 prevIntDelay = selectedIntDelay;
                 selectedIntDelay = intSelectorUpdate();
                 if (selectedIntDelay != prevIntDelay) {
-                    showingDisplayUpdate();
+                    displayWriteInt(intDelayToStr());
                 }
                 wipersInt();
                 break;
@@ -116,66 +114,6 @@ void wipersUpdate() {
         }
     }
     
-}
-
-const char * wipersReadState() {
-    switch(wiperState) {
-        case WIPERS_OFF:
-            stateStr[0] = 'O';
-            stateStr[1] = 'F';
-            stateStr[2] = 'F';
-            stateStr[3] = ' ';
-            break;
-        case WIPERS_INT:
-            stateStr[0] = 'I';
-            stateStr[1] = 'N';
-            stateStr[2] = 'T';
-            stateStr[3] = ' ';
-            break;
-        case WIPERS_LO:
-            stateStr[0] = 'L';
-            stateStr[1] = 'O';
-            stateStr[2] = 'W';
-            stateStr[3] = ' ';
-            break;
-        case WIPERS_HI:
-            stateStr[0] = 'H';
-            stateStr[1] = 'I';
-            stateStr[2] = 'G';
-            stateStr[3] = 'H';
-            break;
-    }
-    return stateStr;
-}
-
-const char * wipersReadInt() {
-    switch(selectedIntDelay) {
-        case SHORT_INT_DELAY:
-            intDelayStr[0] = 'S';
-            intDelayStr[1] = 'H';
-            intDelayStr[2] = 'O';
-            intDelayStr[3] = 'R';
-            intDelayStr[4] = 'T';
-            intDelayStr[5] = ' ';
-            break;
-        case MEDIUM_INT_DELAY:
-            intDelayStr[0] = 'M';
-            intDelayStr[1] = 'E';
-            intDelayStr[2] = 'D';
-            intDelayStr[3] = 'I';
-            intDelayStr[4] = 'U';
-            intDelayStr[5] = 'M';
-            break;
-        case LONG_INT_DELAY:
-            intDelayStr[0] = 'L';
-            intDelayStr[1] = 'O';
-            intDelayStr[2] = 'N';
-            intDelayStr[3] = 'G';
-            intDelayStr[4] = ' ';
-            intDelayStr[5] = ' ';
-            break;
-    }
-    return intDelayStr;
 }
 
 //=====[Implementations of private functions]===================================
@@ -223,7 +161,7 @@ void wipersLo() {
             }
             break;
         case FALLING:
-            currentDuty -= DUTY_INCREMENT_LO;
+            currentDuty -= DUTY_INCREMENT_LO/FALLING_INCREMENT_ADJUST;
             if (currentDuty <= DUTY_MIN) {
                 servoState = RESTING;
             }
@@ -244,7 +182,7 @@ void wipersHi() {
             }
             break;
         case FALLING:
-            currentDuty -= DUTY_INCREMENT_HI;
+            currentDuty -= DUTY_INCREMENT_HI/FALLING_INCREMENT_ADJUST;
             if (currentDuty <= DUTY_MIN) {
                 servoState = RESTING;
             }
@@ -258,30 +196,30 @@ void wiperSelectorUpdate() {
     if (!ignitionRead()) {
         if (wiperState != WIPERS_OFF) {
             wiperState = WIPERS_OFF;
-            showingDisplayUpdate();
+            displayWriteMode("OFF ");
         }
         wiperState = WIPERS_OFF;
     }
 
     else if ( 0.75 + POT_SELECT_PADDING/2 < reading && wiperState != WIPERS_HI) {
         wiperState = WIPERS_HI;
-        showingDisplayUpdate();
+        displayWriteMode("HIGH");
     }
 
     else if ( 0.50 + POT_SELECT_PADDING/2 < reading && reading < 0.75 - POT_SELECT_PADDING/2 && wiperState != WIPERS_LO) {
         wiperState = WIPERS_LO;
-        showingDisplayUpdate();
+        displayWriteMode("LOW ");
             
     }
 
     else if ( 0.25 + POT_SELECT_PADDING/2 < reading && reading  < 0.50 - POT_SELECT_PADDING/2 && wiperState != WIPERS_INT) {
         wiperState = WIPERS_INT;
-        showingDisplayUpdate();
+        displayWriteMode("INT ");
     }
 
     else if (reading < 0.25 - POT_SELECT_PADDING/2 && wiperState != WIPERS_OFF) {
         wiperState = WIPERS_OFF;
-        showingDisplayUpdate();
+        displayWriteMode("OFF ");
     }
 }
 
@@ -294,4 +232,16 @@ int intSelectorUpdate() {
         }
     }
     return intDelays[NUM_INT_SPEEDS-1];
+}
+
+const char * intDelayToStr() {
+    if (selectedIntDelay == intDelays[0]) {
+        return "LONG  ";
+    }
+    else if (selectedIntDelay == intDelays[1]) {
+        return "MEDIUM";
+    }
+    else {
+        return "SHORT ";
+    }
 }
