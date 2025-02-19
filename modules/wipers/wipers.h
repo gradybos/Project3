@@ -5,7 +5,6 @@
 
 //=====[Declarations of public datatypes]=========================
 
-#include <cstdint>
 typedef enum {
     WIPERS_HI,
     WIPERS_LO,
@@ -17,7 +16,8 @@ typedef enum {
 
 void wipersInit(int systemUpdateTime);
 void wipersUpdate();
-wiperState_t wipersRead();
+const char * wipersReadState();
+const char * wipersReadInt();
 
 int getSelectedIntDelay();
 

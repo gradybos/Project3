@@ -82,6 +82,9 @@ static void displayPinWrite( uint8_t pinName, int value );
 static void displayDataBusWrite( uint8_t dataByte );
 static void displayCodeWrite( bool type, uint8_t dataBus );
 
+void displayModeWriteState( const char * str );
+void displayIntWriteState( const char * str );
+
 //=====[Implementations of public functions]===================================
 
 void showingDisplayInit() {
@@ -89,29 +92,14 @@ void showingDisplayInit() {
     displayStringWrite("Mode: OFF");
 
     displayCharPositionWrite(0,1);
-    displayStringWrite("Int: 0 Seconds");
+    displayStringWrite("Int: SHORT ");
 }
 
 void showingDisplayUpdate() {
-    char str[1000];
 
-    displayCharPositionWrite(0,0);
-    displayStringWrite("Mode:");
-
-    displayCharPositionWrite(0,1);
-    displayStringWrite("Int:");
-
-    sprintf(str, "%d", getSelectedIntDelay());
-    displayCharPositionWrite(5,1);
-    displayStringWrite(str);
+    displayModeWriteState(wipersReadState());
+    displayIntWriteState(wipersReadInt());
 }
-
-void displayModeWriteState( const char * str ) {
-    displayCharPositionWrite(6,0);
-    displayStringWrite( str );
-}
-
-
 
 void displayInit()
 {
@@ -214,6 +202,16 @@ void displayStringBinWrite( const uint8_t bin )
 }
 
 //=====[Implementations of private functions]==================================
+
+void displayModeWriteState( const char * str ) {
+    displayCharPositionWrite(6,0);
+    displayStringWrite( str );
+}
+
+void displayIntWriteState( const char * str ) {
+    displayCharPositionWrite(5,1);
+    displayStringWrite( str );
+}
 
 static void displayCodeWrite( bool type, uint8_t dataBus )
 {

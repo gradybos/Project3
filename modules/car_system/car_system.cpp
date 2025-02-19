@@ -15,7 +15,7 @@ void carSystemInit()
 {
     ignitionInit(SYSTEM_UPDATE_TIME_MS);
     displayInit();
-    wipersInit(SYSTEM_DELAY_MS);
+    wipersInit(SYSTEM_UPDATE_TIME_MS);
 }
 
 void carSystemUpdate()
