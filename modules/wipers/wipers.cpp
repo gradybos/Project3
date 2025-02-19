@@ -9,9 +9,14 @@
 //=====[Declaration of private defines]========================================
 
 #define NUM_INT_SPEEDS 3
+#define MAX_STATE_LENGTH 4
+#define MAX_INT_LENGTH 6
+
 #define POS_PERIOD_S 0.02
+#define POS_PERIOD_MS 20
 #define DUTY_MIN 0.025
-#define DUTY_INCREMENT 0.0033
+#define DUTY_INCREMENT_LO 0.00107
+#define DUTY_INCREMENT_HI 0.001815
 #define DUTY_67 0.058
 
 #define SHORT_INT_DELAY 3000
@@ -28,21 +33,23 @@ typedef enum {
     FALLING,
 } servoState_t;
 
+// Wiper state variables
 wiperState_t wiperState;
 char * stateStr = new char[4];
-servoState_t servoState;
 
+// Interval delay variables
 int intDelays[NUM_INT_SPEEDS] = {LONG_INT_DELAY, MEDIUM_INT_DELAY, SHORT_INT_DELAY};
 char * intDelayStr = new char[6];
-
 int prevIntDelay;
 int selectedIntDelay;
 float intSelectorThresholds[NUM_INT_SPEEDS-1];
 
+// Timing variables
 int updateTime;
-int accumulatedWiperTime;
 int accumulatedIntDelayTime;
 
+// Servo variables
+servoState_t servoState;
 float currentDuty;
 
 PwmOut wipers(PF_9);
@@ -86,7 +93,7 @@ void wipersUpdate() {
     static int servoPeriodUpdate;
     servoPeriodUpdate += updateTime;
     wiperSelectorUpdate();
-    if (servoPeriodUpdate >= 20) {
+    if (servoPeriodUpdate >= POS_PERIOD_MS) {
         servoPeriodUpdate = 0;
         switch (wiperState) {
             case WIPERS_LO:
@@ -176,7 +183,7 @@ const char * wipersReadInt() {
 void wipersOff() {
     wipers.write(currentDuty);
     if (currentDuty > DUTY_MIN) {
-        currentDuty -= DUTY_INCREMENT;
+        currentDuty -= DUTY_INCREMENT_LO;
     }
     else {
         servoState = RESTING;
@@ -196,7 +203,7 @@ void wipersInt() {
         wipersLo();
     }
 
-    accumulatedIntDelayTime += 20;
+    accumulatedIntDelayTime += POS_PERIOD_MS;
 
     if (accumulatedIntDelayTime > selectedIntDelay) {
         accumulatedIntDelayTime = 0;
@@ -210,13 +217,13 @@ void wipersLo() {
             servoState = RISING;
             break;
         case RISING:
-            currentDuty += DUTY_INCREMENT;
+            currentDuty += DUTY_INCREMENT_LO;
             if (currentDuty >= DUTY_67) {
                 servoState = FALLING;
             }
             break;
         case FALLING:
-            currentDuty -= DUTY_INCREMENT;
+            currentDuty -= DUTY_INCREMENT_LO;
             if (currentDuty <= DUTY_MIN) {
                 servoState = RESTING;
             }
@@ -231,13 +238,13 @@ void wipersHi() {
             servoState = RISING;
             break;
         case RISING:
-            currentDuty += DUTY_INCREMENT;
+            currentDuty += DUTY_INCREMENT_HI;
             if (currentDuty >= DUTY_67) {
                 servoState = FALLING;
             }
             break;
         case FALLING:
-            currentDuty -= DUTY_INCREMENT;
+            currentDuty -= DUTY_INCREMENT_HI;
             if (currentDuty <= DUTY_MIN) {
                 servoState = RESTING;
             }
