@@ -17,8 +17,6 @@ typedef enum {
 void wipersInit(int systemUpdateTime);
 void wipersUpdate();
 
-int getSelectedIntDelay();
-
 //=====[#include guards - end]=================================================
 
 #endif //

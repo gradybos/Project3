@@ -22,15 +22,16 @@
 #define LONG_INT_DELAY 8000
 
 #define POT_SELECT_PADDING 0.1
-#define FALLING_INCREMENT_ADJUST 2.5
 
-//=====[Declaration and initialization of private global variables]============
+//=====[Declaration and initialization of private datatypes]============
 
 typedef enum {
     RESTING,
     RISING,
     FALLING,
 } servoState_t;
+
+//=====[Declaration and initialization of private global variables]============
 
 // Wiper state variables
 wiperState_t wiperState;
@@ -53,34 +54,25 @@ PwmOut wipers(PF_9);
 AnalogIn wiperSelect(A0);
 AnalogIn intSelect(A1);
 
-//=====[Declaration and initialization of public global objects]===============
-
-//=====[Declaration and initialization of public global variables]=============
-
 //=====[Declarations (prototypes) of private functions]=========================
 
-void wipersOff();
-void wipersInt();
-void wipersLo();
-void wipersHi();
-void wiperSelectorUpdate();
-int intSelectorUpdate();
-void showingDisplayUpdate();
-const char *intDelayToStr();
+static void wipersOff();
+static void wipersInt();
+static void wipersLo();
+static void wipersHi();
+static void wiperSelectorUpdate();
+static int intSelectorUpdate();
+static const char * intDelayToStr();
 
 //=====[Implementations of public functions]===================================
 
-
-int getSelectedIntDelay(){
-    return selectedIntDelay/1000;
-}
-
 void wipersInit(int systemUpdateTime) {
+    updateTime = systemUpdateTime;
     wipers.period(POS_PERIOD_S);
     wiperState = WIPERS_OFF;
     servoState = FALLING;
-    updateTime = systemUpdateTime;
     selectedIntDelay = intDelays[0];
+    // Create thresholds for interval selector potentiometer
     for (int i=1; i<NUM_INT_SPEEDS ;i++) {
         intSelectorThresholds[i-1] = (1.0*i)/NUM_INT_SPEEDS;
     }
@@ -91,6 +83,7 @@ void wipersUpdate() {
     static int servoPeriodUpdate;
     servoPeriodUpdate += updateTime;
     wiperSelectorUpdate();
+    // Make sure servo is only updated each period
     if (servoPeriodUpdate >= POS_PERIOD_MS) {
         servoPeriodUpdate = 0;
         switch (wiperState) {
@@ -103,6 +96,7 @@ void wipersUpdate() {
             case WIPERS_INT:
                 prevIntDelay = selectedIntDelay;
                 selectedIntDelay = intSelectorUpdate();
+                // Update display only when necessary
                 if (selectedIntDelay != prevIntDelay) {
                     displayWriteInt(intDelayToStr());
                 }
@@ -118,7 +112,8 @@ void wipersUpdate() {
 
 //=====[Implementations of private functions]===================================
 
-void wipersOff() {
+static void wipersOff() {
+    // Move wipers towards resting position
     wipers.write(currentDuty);
     if (currentDuty > DUTY_MIN) {
         currentDuty -= DUTY_INCREMENT_LO;
@@ -128,12 +123,14 @@ void wipersOff() {
     }
 }
 
-void wipersInt() {
+static void wipersInt() {
     
     wipers.write(currentDuty);
+    // This only occurs after a full cycle
     if (accumulatedIntDelayTime != 0 && servoState == RESTING) {
         wipersOff();
     }
+    // This moves the wipers a full cycle
     else if (accumulatedIntDelayTime == 0) {
         wipersLo();
     }
@@ -141,6 +138,7 @@ void wipersInt() {
         wipersLo();
     }
 
+    // Allow another full cycle once time elapses
     accumulatedIntDelayTime += POS_PERIOD_MS;
 
     if (accumulatedIntDelayTime > selectedIntDelay) {
@@ -148,20 +146,22 @@ void wipersInt() {
     }
 }
 
-void wipersLo() {
+static void wipersLo() {
     wipers.write(currentDuty);
     switch (servoState) {
         case RESTING:
             servoState = RISING;
             break;
         case RISING:
+            // Move wipers out until they reach 67 degrees
             currentDuty += DUTY_INCREMENT_LO;
             if (currentDuty >= DUTY_67) {
                 servoState = FALLING;
             }
             break;
         case FALLING:
-            currentDuty -= DUTY_INCREMENT_LO/FALLING_INCREMENT_ADJUST;
+            // Then retract them
+            currentDuty -= DUTY_INCREMENT_LO;
             if (currentDuty <= DUTY_MIN) {
                 servoState = RESTING;
             }
@@ -169,20 +169,22 @@ void wipersLo() {
     }
 }
 
-void wipersHi() {
+static void wipersHi() {
     wipers.write(currentDuty);
     switch (servoState) {
         case RESTING:
             servoState = RISING;
             break;
         case RISING:
+            // Move wipers out until they reach 67 degrees
             currentDuty += DUTY_INCREMENT_HI;
             if (currentDuty >= DUTY_67) {
                 servoState = FALLING;
             }
             break;
         case FALLING:
-            currentDuty -= DUTY_INCREMENT_HI/FALLING_INCREMENT_ADJUST;
+            // Then retract them
+            currentDuty -= DUTY_INCREMENT_HI;
             if (currentDuty <= DUTY_MIN) {
                 servoState = RESTING;
             }
@@ -190,9 +192,10 @@ void wipersHi() {
     }
 }
 
-void wiperSelectorUpdate() {
+static void wiperSelectorUpdate() {
     float reading = wiperSelect.read();
 
+    // Force wipers to turn off if ignition is off
     if (!ignitionRead()) {
         if (wiperState != WIPERS_OFF) {
             wiperState = WIPERS_OFF;
@@ -201,6 +204,9 @@ void wiperSelectorUpdate() {
         wiperState = WIPERS_OFF;
     }
 
+    // Decimal values are used to separate areas of potentiometer into
+    // HI, LO, INT, OFF sections. Padding used to prevent display flickering
+    // State is only updated if previous state is different
     else if ( 0.75 + POT_SELECT_PADDING/2 < reading && wiperState != WIPERS_HI) {
         wiperState = WIPERS_HI;
         displayWriteMode("HIGH");
@@ -224,7 +230,8 @@ void wiperSelectorUpdate() {
 }
 
 
-int intSelectorUpdate() {
+static int intSelectorUpdate() {
+    // Similar to wiperSelector, but more modular
     float selectorReading = intSelect.read();
     for (int i=0; i<NUM_INT_SPEEDS-1 ; i++) {
         if (selectorReading < intSelectorThresholds[i]) {
@@ -234,7 +241,8 @@ int intSelectorUpdate() {
     return intDelays[NUM_INT_SPEEDS-1];
 }
 
-const char * intDelayToStr() {
+static const char * intDelayToStr() {
+    // Convert selected int delay to a string to display
     if (selectedIntDelay == intDelays[0]) {
         return "LONG  ";
     }

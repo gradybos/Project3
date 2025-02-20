@@ -88,6 +88,7 @@ void displayIntWriteState( const char * str );
 //=====[Implementations of public functions]===================================
 
 void showingDisplayInit() {
+    // Initializes display for wipers
     displayCharPositionWrite(0,0);
     displayStringWrite("Mode: OFF");
 
@@ -97,6 +98,7 @@ void showingDisplayInit() {
 
 void displayInit()
 {
+    // Initializes a cleared display
     delay( 50 );
     
     displayCodeWrite( DISPLAY_RS_INSTRUCTION, 
@@ -148,6 +150,7 @@ void displayInit()
 
 void displayCharPositionWrite( uint8_t charPositionX, uint8_t charPositionY )
 {    
+    // Sets the position of the cursor
     switch( charPositionY ) {
         case 0:
             displayCodeWrite( DISPLAY_RS_INSTRUCTION, 
@@ -185,6 +188,7 @@ void displayCharPositionWrite( uint8_t charPositionX, uint8_t charPositionY )
 
 void displayStringWrite( const char *str )
 {
+    // Writes given string at current cursor location
     while (*str) {
         displayCodeWrite(DISPLAY_RS_DATA, *str++);
     }
@@ -196,11 +200,13 @@ void displayStringBinWrite( const uint8_t bin )
 }
 
 void displayWriteMode( const char * str ) {
+    // Writes given wiper mode to display
     displayCharPositionWrite(6,0);
     displayStringWrite( str );
 }
 
 void displayWriteInt( const char * str ) {
+    // Writes given interval setting to display
     displayCharPositionWrite(5,1);
     displayStringWrite( str );
 }
